@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/GraphAlgorithms/obj
+/GraphAlgorithms/bin/Debug/net6.0
+/GraphAlgorithmsTests/bin/Debug/net6.0
+/GraphAlgorithmsTests/obj
