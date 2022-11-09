@@ -10,11 +10,11 @@ namespace GraphAlgorithms
         private Func<WeightType, WeightType, bool> _lessThanOrEqual = null;
         public HashSet<VerticeType> ShortestPath(WeightedGraph<VerticeType, WeightType> weightedGraph, VerticeType source, VerticeType destination)
         {
-            var candidates = new LinkedList<(VerticeType vertex, WeightType weight)>();
-            candidates.AddFirst((source, default));
+            var candidates = new PriorityQueue<VerticeType, WeightType>();
+            candidates.Enqueue(source, default);
             var previous = new Dictionary<VerticeType, (VerticeType previous, WeightType weight)> { { source, default } };
             var lastCandidate = source;
-            while (!destination.Equals(lastCandidate) && candidates.Any())
+            while (!destination.Equals(lastCandidate) && candidates.Count > 0)
             {
                 lastCandidate = ExploreNextCandidate(weightedGraph, candidates, previous);
             }
@@ -33,38 +33,24 @@ namespace GraphAlgorithms
             return result.Reverse().ToHashSet();
         }
 
-        public VerticeType ExploreNextCandidate(WeightedGraph<VerticeType, WeightType> weightedGraph, LinkedList<(VerticeType vertex, WeightType weight)> candidates, Dictionary<VerticeType, (VerticeType, WeightType)> previous)
+        public VerticeType ExploreNextCandidate(WeightedGraph<VerticeType, WeightType> weightedGraph, PriorityQueue<VerticeType, WeightType> candidates, Dictionary<VerticeType, (VerticeType vertex, WeightType weight)> previous)
         {
-            var nextCandidate = candidates.First;
-            candidates.RemoveFirst();
-            foreach (var newCandidate in weightedGraph.AdjacencyList[nextCandidate.Value.vertex])
+            var nextCandidate = candidates.Dequeue();
+            foreach (var newCandidate in weightedGraph.AdjacencyList[nextCandidate])
             {
-                var newWeight = Add(newCandidate.Value, previous[nextCandidate.Value.vertex].Item2);
-                var previousCandidate = candidates.Find(candidates.LastOrDefault(c => LessThanOrEqual(c.weight, newCandidate.Value)));
+                var newWeight = Add(newCandidate.Value, previous[nextCandidate].weight);
                 if (!previous.ContainsKey(newCandidate.Key))
                 {
-                    previous.Add(newCandidate.Key, (nextCandidate.Value.vertex, newWeight));
-                    UpdateCandidates(candidates, newCandidate, previousCandidate);
+                    previous.Add(newCandidate.Key, (nextCandidate, newWeight));
+                    candidates.Enqueue(newCandidate.Key, newCandidate.Value);
                 }
                 else if (LessThan(newWeight, previous[newCandidate.Key].Item2))
                 {
-                    previous[newCandidate.Key] = (nextCandidate.Value.vertex, newWeight);
-                    UpdateCandidates(candidates, newCandidate, previousCandidate);
+                    previous[newCandidate.Key] = (nextCandidate, newWeight);
+                    candidates.Enqueue(newCandidate.Key, newCandidate.Value);
                 }
             }
-            return nextCandidate.Value.vertex;
-        }
-
-        private static void UpdateCandidates(LinkedList<(VerticeType vertex, WeightType weight)> candidates, KeyValuePair<VerticeType, WeightType> newCandidate, LinkedListNode<(VerticeType vertex, WeightType weight)>? previousCandidate)
-        {
-            if (previousCandidate == null)
-            {
-                candidates.AddFirst((newCandidate.Key, newCandidate.Value));
-            }
-            else
-            {
-                candidates.AddAfter(previousCandidate, (newCandidate.Key, newCandidate.Value));
-            }
+            return nextCandidate;
         }
 
         public WeightType Add(WeightType a, WeightType b)

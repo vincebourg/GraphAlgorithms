@@ -26,10 +26,10 @@ namespace GraphAlgorithmsTests
                 // given
                 var previous = new Dictionary<int, (int, int)> { {4, (2,2) }, { 2, (1, 1) } };
                 var weightedGraph = new WeightedGraph<int, int>(vertices, edgesWithWeight);
-                var candidates = new LinkedList<(int, int)>();
-                candidates.AddLast((4, 2));
-                candidates.AddLast((5, 3));
-                candidates.AddLast((6,4));
+                var candidates = new PriorityQueue<int, int>();
+                candidates.Enqueue(4, 2);
+                candidates.Enqueue(5, 3);
+                candidates.Enqueue(6,4);
                 var expectedNewcandidates = new List<KeyValuePair<int, int>>{ new(7, 1), new(5, 3), new(6,4)  };
                 var expectedNewPrevious = new (int current, (int previous, int weight) value)[] { ( 4, (2, 2) ), ( 2, (1, 1) ), (7, (4,3)) };
                 var dijkstra = new Dijkstra<int, int>();
@@ -44,7 +44,7 @@ namespace GraphAlgorithmsTests
                                                                                                     Assert.Equal(e.value.weight, v.Value.weight);
                                                                 })).ToArray());
 
-                Assert.Collection(candidates, expectedNewcandidates.Select(e => new Action<(int, int)>(v => {
+                Assert.Collection(candidates.UnorderedItems.OrderBy(c => c.Priority), expectedNewcandidates.Select(e => new Action<(int, int)>(v => {
                     Assert.Equal(e.Key, v.Item1);
                     Assert.Equal(e.Value, v.Item2);
                 })).ToArray());
