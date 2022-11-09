@@ -11,3 +11,4 @@ Following the examples in the source, I first copied the Breadth-First which was
 - Breadth-First: Tested for shortest path and exploration.
 - Depth-First: Tested for loop detection.
 - Dijkstra: Tested for shortest path with weighted graph. (weird thing, with generics I had to implement some Add() and comparison functions)
+- Prim's algorithm: from what I read, found it to be the exact same as Dijkstra but exploring the entire graph.
